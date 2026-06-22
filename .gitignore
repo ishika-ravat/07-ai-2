@@ -1,0 +1,10 @@
+# Quarto
+.quarto/
+*_cache/
+*_files/
+
+# R Project Files
+.Rhistory
+.RData
+.Ruserdata
+.Rproj.user/
