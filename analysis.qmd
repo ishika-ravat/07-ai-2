@@ -12,20 +12,39 @@ suppressPackageStartupMessages(library(tidyverse))
 
 ## Named Storms Per Year
 
-Below is a plot showing the number of named storms per year in the `dplyr::storms` dataset.
+Below is a stacked area chart showing the count of each storm type per year (tropical depressions, tropical storms, and hurricanes) in the `dplyr::storms` dataset.
 
 ```{r plot-storms}
 storms %>%
-  distinct(name, year) %>%
-  count(year) %>%
-  ggplot(aes(x = year, y = n)) +
-  geom_line(color = "steelblue", linewidth = 1) +
-  geom_point(color = "darkblue", size = 2) +
+  filter(status %in% c("tropical depression", "tropical storm", "hurricane")) %>%
+  mutate(status = factor(status, levels = c("tropical depression", "tropical storm", "hurricane"))) %>%
+  distinct(name, year, status) %>%
+  count(year, status) %>%
+  complete(year, status, fill = list(n = 0)) %>%
+  ggplot(aes(x = year, y = n, fill = status)) +
+  geom_area(position = "stack", alpha = 0.85) +
+  scale_fill_manual(
+    values = c(
+      "tropical depression" = "#93C5FD",
+      "tropical storm" = "#F97316",
+      "hurricane" = "#B91C1C"
+    ),
+    labels = c(
+      "tropical depression" = "Tropical Depression",
+      "tropical storm" = "Tropical Storm",
+      "hurricane" = "Hurricane"
+    )
+  ) +
   labs(
-    title = "Number of Named Storms Per Year",
+    title = "Storm Types Per Year",
     subtitle = "Based on the dplyr::storms dataset",
     x = "Year",
-    y = "Number of Named Storms"
+    y = "Number of Storms",
+    fill = "Storm Type"
   ) +
-  theme_minimal(base_size = 14)
+  theme_minimal(base_size = 14) +
+  theme(
+    legend.position = "bottom",
+    plot.title = element_text(face = "bold")
+  )
 ```
